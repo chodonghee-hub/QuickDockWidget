@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Input;
 using QuickDock.Models;
 using QuickDock.Services;
+using QuickDock.Views;
 
 namespace QuickDock.ViewModels
 {
@@ -15,12 +16,14 @@ namespace QuickDock.ViewModels
         public ObservableCollection<Bookmark> Bookmarks { get; } = new();
 
         public ICommand OpenBookmarkCommand { get; }
+        public ICommand OpenSettingsCommand { get; }
 
         public event Action? CloseRequested;
 
         public MainViewModel()
         {
             OpenBookmarkCommand = new RelayCommand<Bookmark>(OpenBookmark);
+            OpenSettingsCommand = new RelayCommand<object>(_ => OpenSettings());
             LoadBookmarks();
         }
 
@@ -30,13 +33,11 @@ namespace QuickDock.ViewModels
 
             if (saved.Count > 0)
             {
-                // JSON에 저장된 북마크 불러오기
                 foreach (var bookmark in saved)
                     Bookmarks.Add(bookmark);
             }
             else
             {
-                // 최초 실행 시 기본 북마크 추가 후 저장
                 var defaults = new[]
                 {
                     new Bookmark { Title = "GitHub",  Url = "https://github.com" },
@@ -56,13 +57,21 @@ namespace QuickDock.ViewModels
 
         public bool SaveBookmarks()
         {
-            var result = _jsonService.Save(new System.Collections.Generic.List<Bookmark>(Bookmarks));
+            var result = _jsonService.Save(
+                new System.Collections.Generic.List<Bookmark>(Bookmarks));
 
             if (!result)
                 MessageBox.Show("북마크 저장에 실패했습니다.",
                     "QuickDock", MessageBoxButton.OK, MessageBoxImage.Warning);
 
             return result;
+        }
+
+        private void OpenSettings()
+        {
+            var vm = new SettingsViewModel(Bookmarks, _jsonService);
+            var window = new SettingsWindow(vm);
+            window.ShowDialog();
         }
 
         private void OpenBookmark(Bookmark? bookmark)
