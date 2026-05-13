@@ -10,6 +10,7 @@ namespace QuickDock.ViewModels
     public class MainViewModel
     {
         private readonly BrowserService _browserService = new();
+        private readonly JsonService _jsonService = new();
 
         public ObservableCollection<Bookmark> Bookmarks { get; } = new();
 
@@ -20,13 +21,48 @@ namespace QuickDock.ViewModels
         public MainViewModel()
         {
             OpenBookmarkCommand = new RelayCommand<Bookmark>(OpenBookmark);
+            LoadBookmarks();
+        }
 
-            Bookmarks.Add(new Bookmark { Title = "GitHub", Url = "https://github.com" });
-            Bookmarks.Add(new Bookmark { Title = "ChatGPT", Url = "https://chat.openai.com" });
-            Bookmarks.Add(new Bookmark { Title = "Notion", Url = "https://notion.so" });
-            Bookmarks.Add(new Bookmark { Title = "Figma", Url = "https://figma.com" });
-            Bookmarks.Add(new Bookmark { Title = "YouTube", Url = "https://youtube.com" });
-            Bookmarks.Add(new Bookmark { Title = "Discord", Url = "https://discord.com" });
+        private void LoadBookmarks()
+        {
+            var saved = _jsonService.Load();
+
+            if (saved.Count > 0)
+            {
+                // JSON에 저장된 북마크 불러오기
+                foreach (var bookmark in saved)
+                    Bookmarks.Add(bookmark);
+            }
+            else
+            {
+                // 최초 실행 시 기본 북마크 추가 후 저장
+                var defaults = new[]
+                {
+                    new Bookmark { Title = "GitHub",  Url = "https://github.com" },
+                    new Bookmark { Title = "ChatGPT", Url = "https://chat.openai.com" },
+                    new Bookmark { Title = "Notion",  Url = "https://notion.so" },
+                    new Bookmark { Title = "Figma",   Url = "https://figma.com" },
+                    new Bookmark { Title = "YouTube", Url = "https://youtube.com" },
+                    new Bookmark { Title = "Discord", Url = "https://discord.com" },
+                };
+
+                foreach (var bookmark in defaults)
+                    Bookmarks.Add(bookmark);
+
+                SaveBookmarks();
+            }
+        }
+
+        public bool SaveBookmarks()
+        {
+            var result = _jsonService.Save(new System.Collections.Generic.List<Bookmark>(Bookmarks));
+
+            if (!result)
+                MessageBox.Show("북마크 저장에 실패했습니다.",
+                    "QuickDock", MessageBoxButton.OK, MessageBoxImage.Warning);
+
+            return result;
         }
 
         private void OpenBookmark(Bookmark? bookmark)
