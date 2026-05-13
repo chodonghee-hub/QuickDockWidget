@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
@@ -7,22 +8,28 @@ namespace QuickDock.Converters
 {
     public class TitleColorConverter : IValueConverter
     {
-        private static readonly string[] Colors =
+        private static readonly Dictionary<string, string> SiteColors = new(StringComparer.OrdinalIgnoreCase)
         {
-            "#378ADD", "#1D9E75", "#D85A30",
-            "#7F77DD", "#BA7517", "#D4537E",
-            "#639922", "#185FA5", "#993556"
+            { "github",   "#1A1A1A" },
+            { "notion",   "#1A1A1A" },
+            { "figma",    "#6B5ECD" },
+            { "youtube",  "#E53935" },
+            { "chatgpt",  "#1EA672" },
+            { "discord",  "#5865F2" },
+            { "supabase", "#3ECF8E" },
         };
 
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string title && title.Length > 0)
             {
-                int index = Math.Abs(title[0]) % Colors.Length;
-                return new SolidColorBrush(
-                    (Color)ColorConverter.ConvertFromString(Colors[index]));
+                foreach (var (keyword, hex) in SiteColors)
+                {
+                    if (title.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                        return new SolidColorBrush((Color)ColorConverter.ConvertFromString(hex));
+                }
             }
-            return new SolidColorBrush(System.Windows.Media.Colors.Gray);
+            return new SolidColorBrush((Color)ColorConverter.ConvertFromString("#888888"));
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

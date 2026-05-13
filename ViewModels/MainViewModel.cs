@@ -26,6 +26,7 @@ namespace QuickDock.ViewModels
         {
             OpenBookmarkCommand = new RelayCommand<Bookmark>(OpenBookmark);
             OpenSettingsCommand = new RelayCommand<object>(_ => OpenSettings());
+            Bookmarks.CollectionChanged += (_, _) => UpdateIndices();
             LoadBookmarks();
         }
 
@@ -42,12 +43,13 @@ namespace QuickDock.ViewModels
             {
                 var defaults = new[]
                 {
-                    new Bookmark { Title = "GitHub",  Url = "https://github.com" },
-                    new Bookmark { Title = "ChatGPT", Url = "https://chat.openai.com" },
-                    new Bookmark { Title = "Notion",  Url = "https://notion.so" },
-                    new Bookmark { Title = "Figma",   Url = "https://figma.com" },
-                    new Bookmark { Title = "YouTube", Url = "https://youtube.com" },
-                    new Bookmark { Title = "Discord", Url = "https://discord.com" },
+                    new Bookmark { Title = "GitHub",   Url = "https://github.com" },
+                    new Bookmark { Title = "Notion",   Url = "https://notion.so" },
+                    new Bookmark { Title = "Figma",    Url = "https://figma.com" },
+                    new Bookmark { Title = "YouTube",  Url = "https://youtube.com" },
+                    new Bookmark { Title = "ChatGPT",  Url = "https://chat.openai.com" },
+                    new Bookmark { Title = "Discord",  Url = "https://discord.com" },
+                    new Bookmark { Title = "Supabase", Url = "https://supabase.com" },
                 };
 
                 foreach (var bookmark in defaults)
@@ -55,6 +57,14 @@ namespace QuickDock.ViewModels
 
                 SaveBookmarks();
             }
+
+            UpdateIndices();
+        }
+
+        private void UpdateIndices()
+        {
+            for (int i = 0; i < Bookmarks.Count; i++)
+                Bookmarks[i].Index = i + 1;
         }
 
         public bool SaveBookmarks()

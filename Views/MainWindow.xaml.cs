@@ -20,6 +20,11 @@ namespace QuickDock.Views
             InitializeComponent();
             DataContext = _viewModel;
             _viewModel.CloseRequested += () => this.Hide();
+        }
+
+        protected override void OnContentRendered(EventArgs e)
+        {
+            base.OnContentRendered(e);
             PositionWindow();
         }
 
@@ -40,8 +45,9 @@ namespace QuickDock.Views
                 this.Hide();
             else
             {
-                PositionWindow();
                 this.Show();
+                this.UpdateLayout();
+                PositionWindow();
                 this.Activate();
                 FocusFirstButton();
             }
@@ -103,8 +109,8 @@ namespace QuickDock.Views
         private void PositionWindow()
         {
             var screen = SystemParameters.WorkArea;
-            this.Left = (screen.Width - this.Width) / 2;
-            this.Top = (screen.Height - this.Height) / 2;
+            this.Left = screen.Right - this.Width - 16;
+            this.Top = screen.Bottom - this.ActualHeight - 16;
         }
 
         protected override void OnDeactivated(EventArgs e)

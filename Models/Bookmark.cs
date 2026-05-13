@@ -9,6 +9,7 @@ namespace QuickDock.Models
         private string _url = string.Empty;
         private string _iconPath = string.Empty;
         private string _group = string.Empty;
+        private int _index;
 
         public string Title
         {
@@ -32,6 +33,13 @@ namespace QuickDock.Models
         {
             get => _group;
             set { _group = value; OnPropertyChanged(); }
+        }
+
+        [System.Text.Json.Serialization.JsonIgnore]
+        public int Index
+        {
+            get => _index;
+            set { _index = value; OnPropertyChanged(); }
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
