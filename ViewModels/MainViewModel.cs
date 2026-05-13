@@ -13,6 +13,8 @@ namespace QuickDock.ViewModels
         private readonly BrowserService _browserService = new();
         private readonly JsonService _jsonService = new();
 
+        public JsonService JsonService => _jsonService;     // SettingsViewModel에서 접근할 수 있도록 공개
+
         public ObservableCollection<Bookmark> Bookmarks { get; } = new();
 
         public ICommand OpenBookmarkCommand { get; }
