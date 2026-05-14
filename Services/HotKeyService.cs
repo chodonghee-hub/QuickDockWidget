@@ -1,7 +1,10 @@
-﻿using System;
+using System;
+using System.IO;
 using System.Runtime.InteropServices;
+using System.Text.Json;
 using System.Windows;
 using System.Windows.Interop;
+using QuickDock.Models;
 
 namespace QuickDock.Services
 {
@@ -15,12 +18,24 @@ namespace QuickDock.Services
         [return: MarshalAs(UnmanagedType.Bool)]
         private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
-        private const uint MOD_CTRL = 0x0002;
+        private const uint MOD_CTRL     = 0x0002;
+        private const uint MOD_ALT      = 0x0001;
+        private const uint MOD_SHIFT    = 0x0004;
+        private const uint MOD_WIN      = 0x0008;
         private const uint MOD_NOREPEAT = 0x4000;
-        private const int HOTKEY_ID = 9000;
+        private const int  HOTKEY_ID    = 9000;
 
-        private IntPtr _windowHandle;
+        private static readonly string ConfigFile = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "QuickDock", "hotkey.json");
+
+        private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+
+        private IntPtr      _windowHandle;
         private HwndSource? _source;
+
+        public uint CurrentModifiers { get; private set; } = MOD_CTRL | MOD_NOREPEAT;
+        public uint CurrentVk        { get; private set; } = 0xC0;
 
         public event Action? HotkeyPressed;
         public event Action? HotkeyConflicted;
@@ -31,10 +46,39 @@ namespace QuickDock.Services
             _source = HwndSource.FromHwnd(_windowHandle);
             _source.AddHook(WndProc);
 
-            bool success = RegisterHotKey(_windowHandle, HOTKEY_ID, MOD_CTRL | MOD_NOREPEAT, 0xC0);
+            LoadConfig();
 
+            bool success = RegisterHotKey(_windowHandle, HOTKEY_ID, CurrentModifiers, CurrentVk);
             if (!success)
                 HotkeyConflicted?.Invoke();
+        }
+
+        public void TemporaryUnregister()
+        {
+            if (_windowHandle != IntPtr.Zero)
+                UnregisterHotKey(_windowHandle, HOTKEY_ID);
+        }
+
+        // modifiers: MOD_NOREPEAT 제외한 modifier 플래그 조합
+        public bool ChangeHotkey(uint modifiers, uint vk)
+        {
+            TemporaryUnregister();
+
+            uint fullMods = modifiers | MOD_NOREPEAT;
+            bool ok = RegisterHotKey(_windowHandle, HOTKEY_ID, fullMods, vk);
+
+            if (!ok)
+            {
+                // 등록 실패 시 기존 단축키 복구 시도
+                RegisterHotKey(_windowHandle, HOTKEY_ID, CurrentModifiers, CurrentVk);
+                HotkeyConflicted?.Invoke();
+                return false;
+            }
+
+            CurrentModifiers = fullMods;
+            CurrentVk        = vk;
+            SaveConfig();
+            return true;
         }
 
         public void Unregister()
@@ -60,6 +104,35 @@ namespace QuickDock.Services
         {
             Unregister();
             _source?.RemoveHook(WndProc);
+        }
+
+        private void LoadConfig()
+        {
+            try
+            {
+                if (!File.Exists(ConfigFile)) return;
+
+                var json   = File.ReadAllText(ConfigFile);
+                var config = JsonSerializer.Deserialize<HotkeyConfig>(json);
+                if (config is null) return;
+
+                CurrentModifiers = config.Modifiers;
+                CurrentVk        = config.Vk;
+            }
+            catch { /* 로드 실패 시 기본값 유지 */ }
+        }
+
+        private void SaveConfig()
+        {
+            try
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(ConfigFile)!);
+                var json = JsonSerializer.Serialize(
+                    new HotkeyConfig { Modifiers = CurrentModifiers, Vk = CurrentVk },
+                    JsonOptions);
+                File.WriteAllText(ConfigFile, json);
+            }
+            catch { }
         }
     }
 }

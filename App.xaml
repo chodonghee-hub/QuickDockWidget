@@ -6,5 +6,17 @@
         <conv:FirstLetterConverter  x:Key="FirstLetterConverter"/>
         <conv:TitleColorConverter   x:Key="TitleColorConverter"/>
         <conv:UrlDisplayConverter   x:Key="UrlDisplayConverter"/>
+
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="#FFFFFF"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="8" ShadowDepth="0" Opacity="0.06" Color="#000000"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Application.Resources>
 </Application>

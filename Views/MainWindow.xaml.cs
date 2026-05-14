@@ -12,7 +12,6 @@ namespace QuickDock.Views
 {
     public partial class MainWindow : Window
     {
-        private readonly HotkeyService _hotkeyService = new();
         private readonly MainViewModel _viewModel = new();
 
         public MainWindow()
@@ -31,9 +30,9 @@ namespace QuickDock.Views
         protected override void OnSourceInitialized(EventArgs e)
         {
             base.OnSourceInitialized(e);
-            _hotkeyService.HotkeyPressed += OnHotkeyPressed;
-            _hotkeyService.HotkeyConflicted += OnHotkeyConflicted;
-            _hotkeyService.Register(this);
+            _viewModel.HotkeyService.HotkeyPressed += OnHotkeyPressed;
+            _viewModel.HotkeyService.HotkeyConflicted += OnHotkeyConflicted;
+            _viewModel.HotkeyService.Register(this);
         }
 
         private void OnHotkeyPressed()
@@ -64,8 +63,16 @@ namespace QuickDock.Views
                 }
             }
 
-            var vm = new SettingsViewModel(_viewModel.Bookmarks, _viewModel.JsonService);
+            var vm = new SettingsViewModel(_viewModel.Bookmarks, _viewModel.JsonService, _viewModel.HotkeyService);
             var window = new SettingsWindow(vm);
+            window.Closed += (s, e) =>
+            {
+                Show();
+                UpdateLayout();
+                PositionWindow();
+                Activate();
+                FocusFirstButton();
+            };
             window.Show();
         }
 
@@ -128,7 +135,7 @@ namespace QuickDock.Views
 
         protected override void OnClosed(EventArgs e)
         {
-            _hotkeyService.Dispose();
+            _viewModel.HotkeyService.Dispose();
             base.OnClosed(e);
         }
     }

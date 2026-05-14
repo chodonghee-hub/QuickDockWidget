@@ -11,9 +11,10 @@ namespace QuickDock.ViewModels
     public class MainViewModel
     {
         private readonly BrowserService _browserService = new();
-        private readonly JsonService _jsonService = new();
+        private readonly JsonService    _jsonService    = new();
 
-        public JsonService JsonService => _jsonService;     // SettingsViewModel에서 접근할 수 있도록 공개
+        public JsonService    JsonService    => _jsonService;
+        public HotkeyService  HotkeyService  { get; } = new();
 
         public ObservableCollection<Bookmark> Bookmarks { get; } = new();
 
@@ -81,7 +82,7 @@ namespace QuickDock.ViewModels
 
         private void OpenSettings()
         {
-            var vm = new SettingsViewModel(Bookmarks, _jsonService);
+            var vm = new SettingsViewModel(Bookmarks, _jsonService, HotkeyService);
             var window = new SettingsWindow(vm);
             window.ShowDialog();
         }
