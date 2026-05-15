@@ -38,7 +38,18 @@ namespace QuickDock.Views
         private void OnHotkeyPressed()
         {
             foreach (Window w in Application.Current.Windows)
-                if (w is SettingsWindow) return;
+            {
+                if (w is SettingsWindow or AddBookmarkWindow)
+                {
+                    w.Close();
+                    this.Show();
+                    this.UpdateLayout();
+                    PositionWindow();
+                    this.Activate();
+                    FocusFirstButton();
+                    return;
+                }
+            }
 
             if (this.IsVisible)
                 this.Hide();
