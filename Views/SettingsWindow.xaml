@@ -10,6 +10,7 @@
         Background="Transparent"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
+        ShowInTaskbar="False"
         PreviewKeyDown="SettingsWindow_PreviewKeyDown">
 
     <Window.Resources>
