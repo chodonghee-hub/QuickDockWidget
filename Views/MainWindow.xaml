@@ -104,11 +104,11 @@
                                         <ColumnDefinition Width="30"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Squircle 아이콘 -->
+                                    <!-- 원형 아이콘 -->
                                     <Border Grid.Column="0"
                                             Width="52" Height="52"
-                                            CornerRadius="12"
-                                            Background="{Binding Title, Converter={StaticResource TitleColorConverter}}"
+                                            CornerRadius="26"
+                                            Background="{Binding IconPath, Converter={StaticResource StringToBrushConverter}}"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Title, Converter={StaticResource FirstLetterConverter}}"
@@ -205,7 +205,7 @@
                         </Button.Style>
                     </Button>
                     <Button Content="＋"
-                            Command="{Binding OpenSettingsCommand}"
+                            Command="{Binding OpenAddBookmarkCommand}"
                             Cursor="Hand">
                         <Button.Style>
                             <Style TargetType="Button">

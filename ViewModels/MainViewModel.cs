@@ -18,15 +18,17 @@ namespace QuickDock.ViewModels
 
         public ObservableCollection<Bookmark> Bookmarks { get; } = new();
 
-        public ICommand OpenBookmarkCommand { get; }
-        public ICommand OpenSettingsCommand { get; }
+        public ICommand OpenBookmarkCommand    { get; }
+        public ICommand OpenSettingsCommand    { get; }
+        public ICommand OpenAddBookmarkCommand { get; }
 
         public event Action? CloseRequested;
 
         public MainViewModel()
         {
-            OpenBookmarkCommand = new RelayCommand<Bookmark>(OpenBookmark);
-            OpenSettingsCommand = new RelayCommand<object>(_ => OpenSettings());
+            OpenBookmarkCommand    = new RelayCommand<Bookmark>(OpenBookmark);
+            OpenSettingsCommand    = new RelayCommand<object>(_ => OpenSettings());
+            OpenAddBookmarkCommand = new RelayCommand<object>(_ => OpenAddBookmark());
             Bookmarks.CollectionChanged += (_, _) => UpdateIndices();
             LoadBookmarks();
         }
@@ -84,6 +86,13 @@ namespace QuickDock.ViewModels
         {
             var vm = new SettingsViewModel(Bookmarks, _jsonService, HotkeyService);
             var window = new SettingsWindow(vm);
+            window.ShowDialog();
+        }
+
+        private void OpenAddBookmark()
+        {
+            var vm = new AddBookmarkViewModel(Bookmarks, _jsonService);
+            var window = new AddBookmarkWindow(vm);
             window.ShowDialog();
         }
 
