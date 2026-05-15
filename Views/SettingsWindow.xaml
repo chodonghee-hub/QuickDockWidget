@@ -4,13 +4,14 @@
         xmlns:dd="urn:gong-wpf-dragdrop"
         xmlns:vm="clr-namespace:QuickDock.ViewModels"
         Title="QuickDock Settings"
-        Width="480" Height="640"
+        Width="480" Height="720"
         WindowStyle="None"
         AllowsTransparency="True"
         Background="Transparent"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
         ShowInTaskbar="False"
+        KeyboardNavigation.TabNavigation="Cycle"
         PreviewKeyDown="SettingsWindow_PreviewKeyDown">
 
     <Window.Resources>
@@ -171,6 +172,7 @@
                         <!-- 오른쪽: Change / Save 버튼 -->
                         <Button x:Name="ChangeHotkeyButton"
                                 Grid.Column="2"
+                                TabIndex="6"
                                 Content="{Binding HotkeyButtonText}"
                                 Style="{StaticResource PillButtonStyle}"
                                 Padding="16,8"
@@ -198,6 +200,8 @@
 
                     <!-- 북마크 리스트 -->
                     <ListBox x:Name="BookmarkListBox"
+                             TabIndex="0"
+                             KeyboardNavigation.TabNavigation="Once"
                              ItemsSource="{Binding Bookmarks}"
                              ItemContainerStyle="{StaticResource BookmarkItemStyle}"
                              dd:DragDrop.IsDragSource="True"
@@ -207,6 +211,7 @@
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Disabled"
                              HorizontalContentAlignment="Stretch"
+                             PreviewKeyDown="BookmarkListBox_PreviewKeyDown"
                              PreviewMouseWheel="BookmarkListBox_PreviewMouseWheel"
                              SelectionChanged="BookmarkListBox_SelectionChanged"
                              Margin="0,0,0,0">
@@ -242,6 +247,7 @@
                                     <!-- 삭제 아이콘 버튼 -->
                                     <Button Grid.Column="2"
                                             Tag="{Binding}"
+                                            IsTabStop="False"
                                             Click="DeleteButton_Click"
                                             Style="{StaticResource IconButtonStyle}"
                                             ToolTip="삭제"
@@ -259,7 +265,16 @@
             <!-- ══════════════════════════════════════ -->
             <!-- ROW 3: 편집 폼 (고정 위치)              -->
             <!-- ══════════════════════════════════════ -->
-            <Grid Grid.Row="3" Margin="24,12,24,4">
+            <Grid Grid.Row="3" Margin="24,12,24,4" IsEnabled="{Binding IsEditMode}">
+                <Grid.Style>
+                    <Style TargetType="Grid">
+                        <Style.Triggers>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Grid.Style>
                 <Rectangle RadiusX="12" RadiusY="12"
                            Stroke="#D0D0D0" StrokeThickness="1"
                            StrokeDashArray="4,2" Fill="Transparent"/>
@@ -273,7 +288,9 @@
                         <TextBlock Grid.Column="0" Text="Name"
                                    FontSize="13" Foreground="#AAAAAA"
                                    VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1"
+                        <TextBox x:Name="TitleTextBox"
+                                 Grid.Column="1"
+                                 TabIndex="1"
                                  Text="{Binding InputTitle, UpdateSourceTrigger=PropertyChanged}"
                                  FontSize="13" Foreground="#1A1A1A"
                                  BorderBrush="#E0E0E0" BorderThickness="0,0,0,1"
@@ -288,7 +305,9 @@
                         <TextBlock Grid.Column="0" Text="URL"
                                    FontSize="13" Foreground="#AAAAAA"
                                    VerticalAlignment="Center"/>
-                        <TextBox Grid.Column="1"
+                        <TextBox x:Name="UrlTextBox"
+                                 Grid.Column="1"
+                                 TabIndex="2"
                                  Text="{Binding InputUrl, UpdateSourceTrigger=PropertyChanged}"
                                  FontSize="13" Foreground="#1A1A1A"
                                  BorderBrush="#E0E0E0" BorderThickness="0,0,0,1"
@@ -305,6 +324,8 @@
                                    VerticalAlignment="Center"/>
                         <ItemsControl Grid.Column="1"
                                       x:Name="IconColorPicker"
+                                      TabIndex="3"
+                                      KeyboardNavigation.TabNavigation="Once"
                                       ItemsSource="{Binding Source={x:Static vm:SettingsViewModel.IconColors}}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
@@ -390,11 +411,15 @@
 
                     <!-- Cancel / Save 버튼 -->
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
-                        <Button Content="Cancel"
+                        <Button x:Name="CancelButton"
+                                Content="Cancel"
+                                TabIndex="5"
                                 Style="{StaticResource PillButtonStyle}"
                                 Click="CancelButton_Click"
                                 Margin="0,0,8,0"/>
-                        <Button Content="{Binding SaveButtonText}"
+                        <Button x:Name="SaveButton"
+                                Content="{Binding SaveButtonText}"
+                                TabIndex="4"
                                 Style="{StaticResource SaveButtonStyle}"
                                 IsEnabled="{Binding IsEditMode}"
                                 Click="SaveButton_Click"/>

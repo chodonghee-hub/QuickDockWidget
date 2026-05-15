@@ -9,6 +9,7 @@ namespace QuickDock.Views
     public partial class SettingsWindow : Window
     {
         private SettingsViewModel _vm = null!;
+        private bool _isKeyboardNavigation;
 
         public SettingsWindow(SettingsViewModel viewModel)
         {
@@ -16,15 +17,34 @@ namespace QuickDock.Views
             _vm = viewModel;
             DataContext = _vm;
             _vm.CloseRequested += () => this.Close();
+            Loaded += (_, _) => BookmarkListBox.Focus();
+        }
+
+        private void BookmarkListBox_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key == Key.Up || e.Key == Key.Down)
+                _isKeyboardNavigation = true;
         }
 
         private void BookmarkListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (BookmarkListBox.SelectedItem is Bookmark bookmark)
+            if (_isKeyboardNavigation)
             {
-                _vm.StartEdit(bookmark);
-                Dispatcher.BeginInvoke(new System.Action(() => BookmarkListBox.SelectedIndex = -1));
+                _isKeyboardNavigation = false;
+                return;
             }
+            if (BookmarkListBox.SelectedItem is Bookmark bookmark)
+                ActivateEdit(bookmark);
+        }
+
+        private void ActivateEdit(Bookmark bookmark)
+        {
+            _vm.StartEdit(bookmark);
+            Dispatcher.BeginInvoke(new System.Action(() =>
+            {
+                BookmarkListBox.SelectedIndex = -1;
+                TitleTextBox.Focus();
+            }));
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
@@ -56,9 +76,41 @@ namespace QuickDock.Views
 
         private void SettingsWindow_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            if (!_vm.IsCapturingHotkey) return;
-
             var key = e.Key == Key.System ? e.SystemKey : e.Key;
+
+            if ((key == Key.Left || key == Key.Right) && IconColorPicker.IsKeyboardFocusWithin)
+            {
+                var colors = SettingsViewModel.IconColors;
+                int idx = 0;
+                for (int i = 0; i < colors.Count; i++)
+                    if (colors[i] == _vm.InputIconColor) { idx = i; break; }
+                idx = key == Key.Left
+                    ? (idx - 1 + colors.Count) % colors.Count
+                    : (idx + 1) % colors.Count;
+                _vm.SelectIconColorCommand.Execute(colors[idx]);
+                e.Handled = true;
+                return;
+            }
+
+            if (key == Key.Return && !_vm.IsCapturingHotkey)
+            {
+                if (!_vm.IsEditMode && BookmarkListBox.IsKeyboardFocusWithin
+                    && BookmarkListBox.SelectedItem is Bookmark bm)
+                {
+                    ActivateEdit(bm);
+                    e.Handled = true;
+                    return;
+                }
+                if (_vm.IsEditMode)
+                {
+                    if (_vm.SaveBookmark())
+                        this.Close();
+                    e.Handled = true;
+                    return;
+                }
+            }
+
+            if (!_vm.IsCapturingHotkey) return;
 
             if (key is Key.LeftCtrl  or Key.RightCtrl  or
                        Key.LeftShift or Key.RightShift  or
