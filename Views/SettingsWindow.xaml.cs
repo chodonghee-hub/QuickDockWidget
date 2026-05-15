@@ -18,10 +18,13 @@ namespace QuickDock.Views
             _vm.CloseRequested += () => this.Close();
         }
 
-        private void EditButton_Click(object sender, RoutedEventArgs e)
+        private void BookmarkListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (sender is Button btn && btn.Tag is Bookmark bookmark)
+            if (BookmarkListBox.SelectedItem is Bookmark bookmark)
+            {
                 _vm.StartEdit(bookmark);
+                Dispatcher.BeginInvoke(new System.Action(() => BookmarkListBox.SelectedIndex = -1));
+            }
         }
 
         private void DeleteButton_Click(object sender, RoutedEventArgs e)

@@ -18,8 +18,15 @@ namespace QuickDock.ViewModels
 
         // ── 북마크 폼 ──────────────────────────────────────
         private Bookmark? _editingBookmark;
-        private string    _inputTitle = string.Empty;
-        private string    _inputUrl   = string.Empty;
+        private string    _inputTitle     = string.Empty;
+        private string    _inputUrl       = string.Empty;
+        private string    _inputIconColor;
+
+        public static readonly IReadOnlyList<string> IconColors = new[]
+        {
+            "#3B82F6", "#1A1A1A", "#F97316", "#14B8A6",
+            "#60A5FA", "#EF4444", "#84CC16", "#8B5CF6", "#6366F1"
+        };
 
         // ── 단축키 캡처 ────────────────────────────────────
         private bool   _isCapturingHotkey;
@@ -49,6 +56,14 @@ namespace QuickDock.ViewModels
             get => _inputUrl;
             set { _inputUrl = value; OnPropertyChanged(); }
         }
+
+        public string InputIconColor
+        {
+            get => _inputIconColor;
+            set { _inputIconColor = value; OnPropertyChanged(); }
+        }
+
+        public ICommand SelectIconColorCommand { get; }
 
         public string SaveButtonText => _editingBookmark is null ? "추가" : "저장";
 
@@ -94,7 +109,12 @@ namespace QuickDock.ViewModels
             _bookmarks      = bookmarks;
             _jsonService    = jsonService;
             _hotkeyService  = hotkeyService;
+            _inputIconColor = IconColors[0];
             CloseCommand    = new RelayCommand<object>(_ => CloseRequested?.Invoke());
+            SelectIconColorCommand = new RelayCommand<string>(color =>
+            {
+                if (color is not null) InputIconColor = color;
+            });
 
             RefreshHotkeyDisplay();
         }
@@ -122,12 +142,13 @@ namespace QuickDock.ViewModels
                         "QuickDock", MessageBoxButton.YesNo, MessageBoxImage.Question);
                     if (result != MessageBoxResult.Yes) return false;
                 }
-                _bookmarks.Add(new Bookmark { Title = InputTitle.Trim(), Url = url });
+                _bookmarks.Add(new Bookmark { Title = InputTitle.Trim(), Url = url, IconPath = InputIconColor });
             }
             else
             {
-                _editingBookmark.Title = InputTitle.Trim();
-                _editingBookmark.Url   = url;
+                _editingBookmark.Title    = InputTitle.Trim();
+                _editingBookmark.Url      = url;
+                _editingBookmark.IconPath = InputIconColor;
             }
 
             _jsonService.Save(new System.Collections.Generic.List<Bookmark>(_bookmarks));
@@ -138,8 +159,9 @@ namespace QuickDock.ViewModels
         public void StartEdit(Bookmark bookmark)
         {
             _editingBookmark = bookmark;
-            InputTitle = bookmark.Title;
-            InputUrl   = bookmark.Url;
+            InputTitle     = bookmark.Title;
+            InputUrl       = bookmark.Url;
+            InputIconColor = IconColors.Contains(bookmark.IconPath) ? bookmark.IconPath : IconColors[0];
             OnPropertyChanged(nameof(SaveButtonText));
         }
 
@@ -158,8 +180,9 @@ namespace QuickDock.ViewModels
         public void ClearForm()
         {
             _editingBookmark = null;
-            InputTitle = string.Empty;
-            InputUrl   = string.Empty;
+            InputTitle     = string.Empty;
+            InputUrl       = string.Empty;
+            InputIconColor = IconColors[0];
             OnPropertyChanged(nameof(SaveButtonText));
         }
 
