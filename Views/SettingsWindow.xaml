@@ -94,6 +94,7 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -118,67 +119,74 @@
             </Grid>
 
             <!-- ══════════════════════════════════════ -->
-            <!-- ROW 1: 스크롤 컨텐츠                   -->
+            <!-- ROW 1: HOTKEY 고정 섹션               -->
             <!-- ══════════════════════════════════════ -->
-            <ScrollViewer Grid.Row="1"
+            <StackPanel Grid.Row="1" Margin="24,0,24,16">
+
+                <!-- HOTKEY 섹션 헤더 -->
+                <TextBlock Text="HOTKEY"
+                           FontSize="11" FontWeight="Medium"
+                           Foreground="#AAAAAA"
+                           Margin="0,0,0,8"/>
+
+                <!-- 단축키 카드 -->
+                <Border Style="{StaticResource CardStyle}" Padding="16">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- 왼쪽: 설명 텍스트 -->
+                        <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                            <TextBlock Text="Toggle widget"
+                                       FontSize="13" FontWeight="SemiBold"
+                                       Foreground="#1A1A1A"/>
+                            <TextBlock Text="{Binding HotkeyStatusText}"
+                                       FontSize="11" Foreground="#999999"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
+
+                        <!-- 가운데: 키 배지 -->
+                        <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                    VerticalAlignment="Center" Margin="12,0">
+                            <Border CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1"
+                                    Background="#FFFFFF" Padding="8,4">
+                                <TextBlock Text="{Binding HotkeyModifierText}"
+                                           FontFamily="Consolas"
+                                           FontSize="13" Foreground="#1A1A1A"/>
+                            </Border>
+                            <TextBlock Text="+" FontSize="13" Foreground="#AAAAAA"
+                                       VerticalAlignment="Center" Margin="6,0"/>
+                            <Border CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1"
+                                    Background="#FFFFFF" Padding="8,4">
+                                <TextBlock Text="{Binding HotkeyKeyText}"
+                                           FontFamily="Consolas"
+                                           FontSize="13" Foreground="#1A1A1A"/>
+                            </Border>
+                        </StackPanel>
+
+                        <!-- 오른쪽: Change / Save 버튼 -->
+                        <Button x:Name="ChangeHotkeyButton"
+                                Grid.Column="2"
+                                Content="{Binding HotkeyButtonText}"
+                                Style="{StaticResource PillButtonStyle}"
+                                Padding="16,8"
+                                VerticalAlignment="Center"
+                                Click="ChangeHotkeyButton_Click"/>
+                    </Grid>
+                </Border>
+
+            </StackPanel>
+
+            <!-- ══════════════════════════════════════ -->
+            <!-- ROW 2: 스크롤 컨텐츠 (BOOKMARKS)       -->
+            <!-- ══════════════════════════════════════ -->
+            <ScrollViewer Grid.Row="2"
                           VerticalScrollBarVisibility="Auto"
                           HorizontalScrollBarVisibility="Disabled">
                 <StackPanel Margin="24,0,24,16">
-
-                    <!-- HOTKEY 섹션 헤더 -->
-                    <TextBlock Text="HOTKEY"
-                               FontSize="11" FontWeight="Medium"
-                               Foreground="#AAAAAA"
-                               Margin="0,0,0,8"/>
-
-                    <!-- 단축키 카드 -->
-                    <Border Style="{StaticResource CardStyle}" Padding="16" Margin="0,0,0,20">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- 왼쪽: 설명 텍스트 -->
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                <TextBlock Text="Toggle widget"
-                                           FontSize="13" FontWeight="SemiBold"
-                                           Foreground="#1A1A1A"/>
-                                <TextBlock Text="{Binding HotkeyStatusText}"
-                                           FontSize="11" Foreground="#999999"
-                                           Margin="0,2,0,0"/>
-                            </StackPanel>
-
-                            <!-- 가운데: 키 배지 -->
-                            <StackPanel Grid.Column="1" Orientation="Horizontal"
-                                        VerticalAlignment="Center" Margin="12,0">
-                                <Border CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1"
-                                        Background="#FFFFFF" Padding="8,4">
-                                    <TextBlock Text="{Binding HotkeyModifierText}"
-                                               FontFamily="Consolas"
-                                               FontSize="13" Foreground="#1A1A1A"/>
-                                </Border>
-                                <TextBlock Text="+" FontSize="13" Foreground="#AAAAAA"
-                                           VerticalAlignment="Center" Margin="6,0"/>
-                                <Border CornerRadius="6" BorderBrush="#E0E0E0" BorderThickness="1"
-                                        Background="#FFFFFF" Padding="8,4">
-                                    <TextBlock Text="{Binding HotkeyKeyText}"
-                                               FontFamily="Consolas"
-                                               FontSize="13" Foreground="#1A1A1A"/>
-                                </Border>
-                            </StackPanel>
-
-                            <!-- 오른쪽: Change / Save 버튼 -->
-                            <Button x:Name="ChangeHotkeyButton"
-                                    Grid.Column="2"
-                                    Content="{Binding HotkeyButtonText}"
-                                    Style="{StaticResource PillButtonStyle}"
-                                    Padding="16,8"
-                                    VerticalAlignment="Center"
-                                    Click="ChangeHotkeyButton_Click"/>
-                        </Grid>
-                    </Border>
 
                     <!-- BOOKMARKS 섹션 헤더 (카운트 바인딩 포함) -->
                     <TextBlock FontSize="11" FontWeight="Medium" Foreground="#AAAAAA"
@@ -248,9 +256,9 @@
             </ScrollViewer>
 
             <!-- ══════════════════════════════════════ -->
-            <!-- ROW 2: 편집 폼 (고정 위치)              -->
+            <!-- ROW 3: 편집 폼 (고정 위치)              -->
             <!-- ══════════════════════════════════════ -->
-            <Grid Grid.Row="2" Margin="24,12,24,4">
+            <Grid Grid.Row="3" Margin="24,12,24,4">
                 <Rectangle RadiusX="12" RadiusY="12"
                            Stroke="#D0D0D0" StrokeThickness="1"
                            StrokeDashArray="4,2" Fill="Transparent"/>
@@ -363,9 +371,9 @@
             </Grid>
 
             <!-- ══════════════════════════════════════ -->
-            <!-- ROW 3: 푸터 바                         -->
+            <!-- ROW 4: 푸터 바                         -->
             <!-- ══════════════════════════════════════ -->
-            <Border Grid.Row="3" BorderBrush="#E8E8E8" BorderThickness="0,1,0,0" Padding="24,14">
+            <Border Grid.Row="4" BorderBrush="#E8E8E8" BorderThickness="0,1,0,0" Padding="24,14">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -387,6 +395,7 @@
                                 Margin="0,0,8,0"/>
                         <Button Content="{Binding SaveButtonText}"
                                 Style="{StaticResource SaveButtonStyle}"
+                                IsEnabled="{Binding IsEditMode}"
                                 Click="SaveButton_Click"/>
                     </StackPanel>
                 </Grid>

@@ -65,7 +65,8 @@ namespace QuickDock.ViewModels
 
         public ICommand SelectIconColorCommand { get; }
 
-        public string SaveButtonText => _editingBookmark is null ? "추가" : "저장";
+        public string SaveButtonText => "저장";
+        public bool IsEditMode => _editingBookmark is not null;
 
         // ── 공개 프로퍼티: 단축키 ──────────────────────────
         public bool IsCapturingHotkey
@@ -163,6 +164,7 @@ namespace QuickDock.ViewModels
             InputUrl       = bookmark.Url;
             InputIconColor = IconColors.Contains(bookmark.IconPath) ? bookmark.IconPath : IconColors[0];
             OnPropertyChanged(nameof(SaveButtonText));
+            OnPropertyChanged(nameof(IsEditMode));
         }
 
         public void DeleteBookmark(Bookmark bookmark)
@@ -184,6 +186,7 @@ namespace QuickDock.ViewModels
             InputUrl       = string.Empty;
             InputIconColor = IconColors[0];
             OnPropertyChanged(nameof(SaveButtonText));
+            OnPropertyChanged(nameof(IsEditMode));
         }
 
         // ── 단축키 캡처 메서드 ────────────────────────────

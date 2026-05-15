@@ -84,6 +84,13 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="bg" Property="Background" Value="#000000"/>
                             </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bg" Property="Background" Value="#FFFFFF"/>
+                                <Setter TargetName="bg" Property="BorderBrush" Value="#E0E0E0"/>
+                                <Setter TargetName="bg" Property="BorderThickness" Value="1"/>
+                                <Setter Property="Foreground" Value="#AAAAAA"/>
+                                <Setter Property="Cursor" Value="Arrow"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
