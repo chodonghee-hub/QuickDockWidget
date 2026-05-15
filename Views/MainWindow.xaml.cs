@@ -126,11 +126,61 @@ namespace QuickDock.Views
             this.Hide();
         }
 
+        protected override void OnPreviewKeyDown(KeyEventArgs e)
+        {
+            if (e.Key == Key.Tab)
+            {
+                var buttons = FindVisualChildren<Button>(BookmarkItemsControl).ToList();
+                bool focusInList = buttons.Any(b => b.IsKeyboardFocused);
+
+                if (focusInList)
+                {
+                    SettingsButton.Focus();
+                    e.Handled = true;
+                }
+                else if (SettingsButton.IsKeyboardFocused)
+                {
+                    AddButton.Focus();
+                    e.Handled = true;
+                }
+                else if (AddButton.IsKeyboardFocused)
+                {
+                    FocusFirstButton();
+                    e.Handled = true;
+                }
+            }
+            base.OnPreviewKeyDown(e);
+        }
+
         protected override void OnKeyDown(KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
                 this.Hide();
             base.OnKeyDown(e);
+        }
+
+        private void BookmarkItemsControl_PreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.Key != Key.Up && e.Key != Key.Down) return;
+
+            var buttons = FindVisualChildren<Button>(BookmarkItemsControl).ToList();
+            if (buttons.Count == 0) return;
+
+            var focused = buttons.FirstOrDefault(b => b.IsKeyboardFocused);
+            if (focused == null) return;
+
+            int index = buttons.IndexOf(focused);
+
+            if (e.Key == Key.Up && index == 0)
+            {
+                e.Handled = true;
+                buttons[buttons.Count - 1].Focus();
+            }
+            else if (e.Key == Key.Down && index == buttons.Count - 1)
+            {
+                e.Handled = true;
+                buttons[0].Focus();
+            }
         }
 
         protected override void OnClosed(EventArgs e)

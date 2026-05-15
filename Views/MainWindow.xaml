@@ -43,7 +43,8 @@
             <!-- 북마크 목록 -->
             <ItemsControl Grid.Row="2"
                           x:Name="BookmarkItemsControl"
-                          ItemsSource="{Binding Bookmarks}">
+                          ItemsSource="{Binding Bookmarks}"
+                          PreviewKeyDown="BookmarkItemsControl_PreviewKeyDown">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
@@ -168,7 +169,8 @@
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center">
-                    <Button Content="⚙"
+                    <Button x:Name="SettingsButton"
+                            Content="⚙"
                             Command="{Binding OpenSettingsCommand}"
                             Margin="0,0,6,0"
                             Cursor="Hand">
@@ -190,6 +192,10 @@
                                                                   VerticalAlignment="Center"/>
                                             </Border>
                                             <ControlTemplate.Triggers>
+                                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                                    <Setter Property="Background" Value="#F0F0F0"/>
+                                                    <Setter Property="Foreground" Value="#555555"/>
+                                                </Trigger>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter Property="Background" Value="#F0F0F0"/>
                                                     <Setter Property="Foreground" Value="#555555"/>
@@ -204,7 +210,8 @@
                             </Style>
                         </Button.Style>
                     </Button>
-                    <Button Content="＋"
+                    <Button x:Name="AddButton"
+                            Content="＋"
                             Command="{Binding OpenAddBookmarkCommand}"
                             Cursor="Hand">
                         <Button.Style>
@@ -225,6 +232,10 @@
                                                                   VerticalAlignment="Center"/>
                                             </Border>
                                             <ControlTemplate.Triggers>
+                                                <Trigger Property="IsKeyboardFocused" Value="True">
+                                                    <Setter Property="Background" Value="#F0F0F0"/>
+                                                    <Setter Property="Foreground" Value="#555555"/>
+                                                </Trigger>
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter Property="Background" Value="#F0F0F0"/>
                                                     <Setter Property="Foreground" Value="#555555"/>
