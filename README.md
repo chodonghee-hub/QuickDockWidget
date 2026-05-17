@@ -5,8 +5,8 @@ Windows에서 글로벌 단축키(Ctrl+\`)로 즐겨찾기 웹사이트를 빠�
 ![Platform](https://img.shields.io/badge/Platform-Windows-blue)
 ![Framework](https://img.shields.io/badge/.NET-8.0-purple)
 ![UI](https://img.shields.io/badge/UI-WPF-blueviolet)
-[![GitHub Release](https://img.shields.io/github/v/release/chodonghee-hub/QuickDock)](https://github.com/chodonghee-hub/QuickDock/releases/latest)
-[![GitHub Downloads](https://img.shields.io/github/downloads/chodonghee-hub/QuickDock/total)](https://github.com/chodonghee-hub/QuickDock/releases)
+[![GitHub Release](https://img.shields.io/github/v/release/chodonghee-hub/QuickDockWidget)](https://github.com/chodonghee-hub/QuickDockWidget/releases/latest)
+[![GitHub Downloads](https://img.shields.io/github/downloads/chodonghee-hub/QuickDockWidget/total)](https://github.com/chodonghee-hub/QuickDockWidget/releases)
 
 ## 다운로드
 
