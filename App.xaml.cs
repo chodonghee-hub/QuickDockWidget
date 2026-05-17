@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
+using Microsoft.Win32;
 using QuickDock.Services;
 using QuickDock.Views;
 
@@ -12,6 +14,9 @@ namespace QuickDock
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            if (e.Args.Contains("--install"))
+                RegisterStartup();
 
             this.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
@@ -55,6 +60,16 @@ namespace QuickDock
         {
             _trayService?.Dispose();
             base.OnExit(e);
+        }
+
+        private static void RegisterStartup()
+        {
+            var exePath = Process.GetCurrentProcess().MainModule?.FileName;
+            if (exePath is null) return;
+
+            using var key = Registry.CurrentUser
+                .OpenSubKey(@"Software\Microsoft\Windows\CurrentVersion\Run", writable: true);
+            key?.SetValue("QuickDock", $"\"{exePath}\"");
         }
     }
 }

@@ -25,28 +25,28 @@ Windows에서 글로벌 단축키(Ctrl+\`)로 즐겨찾기 웹사이트를 빠�
 
 ### 2단계 — Windows 시작 시 자동 실행 설정
 
-앱을 실행하면 시스템 트레이(우측 하단 알림 영역)에 QuickDock 아이콘이 생깁니다.
+#### 방법 1 — `--install` 플래그 (권장)
 
-**트레이 아이콘으로 설정하는 방법:**
+압축 해제 후 PowerShell 또는 명령 프롬프트에서 아래 명령어를 한 번만 실행하면 시작프로그램 등록과 앱 실행이 동시에 이뤄집니다.
+
+```powershell
+# 압축 해제 폴더로 이동 후 실행
+.\QuickDock.exe --install
+```
+
+이후 Windows 재시작 시 QuickDock이 자동으로 실행됩니다.
+
+> **바탕화면 바로가기로 설정하는 방법:** 바로가기 속성 → 대상(Target) 항목 끝에 `--install` 추가 → 더블클릭 한 번으로 설치 완료
+
+#### 방법 2 — 트레이 메뉴에서 설정
+
+앱을 실행하면 시스템 트레이(우측 하단 알림 영역)에 QuickDock 아이콘이 생깁니다.
 
 1. 화면 우측 하단 트레이 아이콘 우클릭
 2. **"시작 시 자동 실행"** 항목 클릭 (체크 표시되면 활성화됨)
 3. 이제 Windows 로그인 시 QuickDock이 자동으로 백그라운드에서 실행됩니다.
 
 > 내부적으로 `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` 레지스트리에 등록됩니다. 관리자 권한 없이도 설정 가능합니다.
-
-**수동으로 설정하는 방법 (선택 사항):**
-
-레지스트리 편집기 없이 PowerShell로도 설정할 수 있습니다:
-
-```powershell
-# 시작프로그램 등록
-$exePath = "C:\Users\사용자이름\QuickDock\QuickDock.exe"
-Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "QuickDock" -Value "`"$exePath`""
-
-# 시작프로그램 해제
-Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "QuickDock" -ErrorAction SilentlyContinue
-```
 
 ---
 
