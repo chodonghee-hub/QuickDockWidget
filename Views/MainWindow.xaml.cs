@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,6 +24,11 @@ namespace QuickDock.Views
             DataContext = _viewModel;
             _viewModel.CloseRequested += () => this.Hide();
             BookmarkItemsControl.RenderTransform = _bookmarkTranslate;
+        }
+
+        private void GitHubButton_Click(object sender, RoutedEventArgs e)
+        {
+            Process.Start(new ProcessStartInfo("https://github.com/chodonghee-hub/QuickDockWidget") { UseShellExecute = true });
         }
 
         protected override void OnContentRendered(EventArgs e)
