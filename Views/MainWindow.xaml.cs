@@ -4,6 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using QuickDock.Services;
 using QuickDock.ViewModels;
@@ -13,18 +14,34 @@ namespace QuickDock.Views
     public partial class MainWindow : Window
     {
         private readonly MainViewModel _viewModel = new();
+        private bool _isAnimating;
+        private readonly TranslateTransform _bookmarkTranslate = new();
 
         public MainWindow()
         {
             InitializeComponent();
             DataContext = _viewModel;
             _viewModel.CloseRequested += () => this.Hide();
+            BookmarkItemsControl.RenderTransform = _bookmarkTranslate;
         }
 
         protected override void OnContentRendered(EventArgs e)
         {
             base.OnContentRendered(e);
+            SizeToContent = SizeToContent.Manual;
             PositionWindow();
+            _viewModel.Bookmarks.CollectionChanged += (_, _) => ResizeWindow();
+        }
+
+        private void ResizeWindow()
+        {
+            Dispatcher.InvokeAsync(() =>
+            {
+                SizeToContent = SizeToContent.Height;
+                UpdateLayout();
+                SizeToContent = SizeToContent.Manual;
+                PositionWindow();
+            }, DispatcherPriority.Loaded);
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -89,17 +106,13 @@ namespace QuickDock.Views
 
         private void FocusFirstButton()
         {
-            this.Dispatcher.InvokeAsync(() =>
+            Dispatcher.InvokeAsync(() =>
             {
-                BookmarkItemsControl.UpdateLayout();
-                var container = BookmarkItemsControl
-                    .ItemContainerGenerator
-                    .ContainerFromIndex(0) as ContentPresenter;
-                if (container == null) return;
-                var button = FindVisualChildren<Button>(container).FirstOrDefault();
+                var button = FindVisualChildren<Button>(BookmarkItemsControl)
+                    .FirstOrDefault(b => b.IsVisible);
                 button?.Focus();
                 if (button != null) Keyboard.Focus(button);
-            }, DispatcherPriority.Render);
+            }, DispatcherPriority.DataBind);
         }
 
         private static System.Collections.Generic.IEnumerable<T> FindVisualChildren<T>(
@@ -134,12 +147,30 @@ namespace QuickDock.Views
         protected override void OnDeactivated(EventArgs e)
         {
             base.OnDeactivated(e);
+            if (_isAnimating)
+            {
+                _bookmarkTranslate.BeginAnimation(TranslateTransform.XProperty, null);
+                BookmarkItemsControl.BeginAnimation(UIElement.OpacityProperty, null);
+                _bookmarkTranslate.X = 0;
+                BookmarkItemsControl.Opacity = 1;
+                _isAnimating = false;
+            }
             this.Hide();
         }
 
         protected override void OnPreviewKeyDown(KeyEventArgs e)
         {
-            if (e.Key == Key.Tab)
+            if (e.Key == Key.Left)
+            {
+                AnimatePageChange(goNext: false, focusLast: false);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Right)
+            {
+                AnimatePageChange(goNext: true, focusLast: false);
+                e.Handled = true;
+            }
+            else if (e.Key == Key.Tab)
             {
                 var buttons = FindVisualChildren<Button>(BookmarkItemsControl).ToList();
                 bool focusInList = buttons.Any(b => b.IsKeyboardFocused);
@@ -174,7 +205,8 @@ namespace QuickDock.Views
         {
             if (e.Key != Key.Up && e.Key != Key.Down) return;
 
-            var buttons = FindVisualChildren<Button>(BookmarkItemsControl).ToList();
+            var buttons = FindVisualChildren<Button>(BookmarkItemsControl)
+                .Where(b => b.IsVisible).ToList();
             if (buttons.Count == 0) return;
 
             var focused = buttons.FirstOrDefault(b => b.IsKeyboardFocused);
@@ -185,13 +217,73 @@ namespace QuickDock.Views
             if (e.Key == Key.Up && index == 0)
             {
                 e.Handled = true;
-                buttons[buttons.Count - 1].Focus();
+                AnimatePageChange(goNext: false, focusLast: true);
             }
             else if (e.Key == Key.Down && index == buttons.Count - 1)
             {
                 e.Handled = true;
-                buttons[0].Focus();
+                AnimatePageChange(goNext: true, focusLast: false);
             }
+        }
+
+        private void FocusButtonAfterPageChange(bool focusLast)
+        {
+            var buttons = FindVisualChildren<Button>(BookmarkItemsControl)
+                .Where(b => b.IsVisible).ToList();
+            if (buttons.Count == 0) return;
+            var target = focusLast ? buttons[buttons.Count - 1] : buttons[0];
+            target.Focus();
+            Keyboard.Focus(target);
+        }
+
+        private void AnimatePageChange(bool goNext, bool focusLast)
+        {
+            if (_isAnimating) return;
+            if (goNext && _viewModel.CurrentPage >= _viewModel.TotalPages - 1) return;
+            if (!goNext && _viewModel.CurrentPage <= 0) return;
+
+            _isAnimating = true;
+
+            double outX = goNext ? -30 : 30;
+            double inX  = goNext ?  30 : -30;
+            var easeIn  = new CubicEase { EasingMode = EasingMode.EaseIn };
+            var easeOut = new CubicEase { EasingMode = EasingMode.EaseOut };
+
+            var fadeOut  = new DoubleAnimation(1, 0, TimeSpan.FromMilliseconds(80))  { EasingFunction = easeIn };
+            var slideOut = new DoubleAnimation(0, outX, TimeSpan.FromMilliseconds(80)) { EasingFunction = easeIn };
+
+            fadeOut.Completed += (_, _) =>
+            {
+                _bookmarkTranslate.BeginAnimation(TranslateTransform.XProperty, null);
+                BookmarkItemsControl.BeginAnimation(UIElement.OpacityProperty, null);
+                _bookmarkTranslate.X = inX;
+                BookmarkItemsControl.Opacity = 0;
+
+                if (goNext) _viewModel.NextPageCommand.Execute(null);
+                else        _viewModel.PreviousPageCommand.Execute(null);
+
+                // Completed는 Render 프레임 내에서 실행됨. 여기서 바로 BeginAnimation하면
+                // DataBind(우선순위 8)가 다음 Render 프레임 전에 처리되어
+                // 첫 프레임 렌더링 시 데이터가 이미 바인딩된 상태가 됨.
+                var fadeIn  = new DoubleAnimation(0, 1, TimeSpan.FromMilliseconds(130)) { EasingFunction = easeOut, FillBehavior = FillBehavior.Stop };
+                var slideIn = new DoubleAnimation(inX, 0, TimeSpan.FromMilliseconds(130)) { EasingFunction = easeOut, FillBehavior = FillBehavior.Stop };
+
+                fadeIn.Completed += (_, _) =>
+                {
+                    _bookmarkTranslate.BeginAnimation(TranslateTransform.XProperty, null);
+                    BookmarkItemsControl.BeginAnimation(UIElement.OpacityProperty, null);
+                    _bookmarkTranslate.X = 0;
+                    BookmarkItemsControl.Opacity = 1;
+                    _isAnimating = false;
+                    FocusButtonAfterPageChange(focusLast);
+                };
+
+                _bookmarkTranslate.BeginAnimation(TranslateTransform.XProperty, slideIn);
+                BookmarkItemsControl.BeginAnimation(UIElement.OpacityProperty, fadeIn);
+            };
+
+            _bookmarkTranslate.BeginAnimation(TranslateTransform.XProperty, slideOut);
+            BookmarkItemsControl.BeginAnimation(UIElement.OpacityProperty, fadeOut);
         }
 
         protected override void OnClosed(EventArgs e)
