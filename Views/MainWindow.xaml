@@ -11,7 +11,7 @@
         Topmost="True"
         ShowInTaskbar="False">
 
-    <Border Background="#FFFFFF" CornerRadius="20" Padding="18" Margin="20">
+    <Border Background="#FFFFFF" CornerRadius="20" Padding="18,18,0,18" Margin="20">
         <Border.Effect>
             <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.15" Color="#000000"/>
         </Border.Effect>
@@ -20,13 +20,13 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="16"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="16"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
             <!-- 헤더 -->
-            <Grid Grid.Row="0">
+            <Grid Grid.Row="0" Margin="0,0,18,0">
                 <TextBlock Text="BOOKMARKS"
                            FontSize="11"
                            Foreground="#AAAAAA"
@@ -41,10 +41,15 @@
             </Grid>
 
             <!-- 북마크 목록 -->
-            <ItemsControl Grid.Row="2"
-                          x:Name="BookmarkItemsControl"
-                          ItemsSource="{Binding Bookmarks}"
+            <ScrollViewer Grid.Row="2"
+                          MaxHeight="468"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled"
+                          Focusable="False"
                           PreviewKeyDown="BookmarkItemsControl_PreviewKeyDown">
+            <ItemsControl x:Name="BookmarkItemsControl"
+                          ItemsSource="{Binding Bookmarks}"
+                          Margin="0,0,4,0">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
@@ -76,7 +81,7 @@
                                                                StrokeThickness="1.5"
                                                                RadiusX="12" RadiusY="12"
                                                                Visibility="Collapsed"/>
-                                                    <ContentPresenter Margin="12,0"
+                                                    <ContentPresenter Margin="16,0"
                                                                       HorizontalAlignment="Stretch"
                                                                       VerticalAlignment="Center"/>
                                                 </Grid>
@@ -149,9 +154,10 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
+            </ScrollViewer>
 
             <!-- 푸터 -->
-            <Grid Grid.Row="4">
+            <Grid Grid.Row="4" Margin="0,0,18,0">
                 <!-- 아이템 카운터 -->
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding Bookmarks.Count}"
