@@ -11,6 +11,10 @@
         Topmost="True"
         ShowInTaskbar="False">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </Window.Resources>
+
     <Border Background="#FFFFFF" CornerRadius="20" Padding="18,18,0,18" Margin="20">
         <Border.Effect>
             <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.15" Color="#000000"/>
@@ -19,7 +23,8 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="16"/>
+                <RowDefinition Height="8"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="16"/>
                 <RowDefinition Height="Auto"/>
@@ -34,22 +39,121 @@
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right"
                             VerticalAlignment="Center">
-                    <TextBlock Text="↑" FontSize="12" Foreground="#CCCCCC" Margin="0,0,10,0"/>
-                    <TextBlock Text="↓" FontSize="12" Foreground="#CCCCCC" Margin="0,0,10,0"/>
+                    <Button Command="{Binding PreviousPageCommand}"
+                            Visibility="{Binding HasMultiplePages, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Cursor="Hand" Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="↑" FontSize="12" Foreground="#CCCCCC"/>
+                    </Button>
+                    <Button Command="{Binding NextPageCommand}"
+                            Visibility="{Binding HasMultiplePages, Converter={StaticResource BooleanToVisibilityConverter}}"
+                            Cursor="Hand" Margin="0,0,10,0">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock Text="↓" FontSize="12" Foreground="#CCCCCC"/>
+                    </Button>
                     <TextBlock Text="↵" FontSize="12" Foreground="#CCCCCC"/>
                 </StackPanel>
             </Grid>
 
+            <!-- 페이지 점 -->
+            <ItemsControl Grid.Row="2"
+                          ItemsSource="{Binding PageDots}"
+                          HorizontalAlignment="Center"
+                          Margin="0,0,0,8"
+                          Visibility="{Binding HasMultiplePages, Converter={StaticResource BooleanToVisibilityConverter}}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Ellipse Width="6" Height="6" Margin="3,0">
+                            <Ellipse.Style>
+                                <Style TargetType="Ellipse">
+                                    <Setter Property="Fill" Value="Transparent"/>
+                                    <Setter Property="Stroke" Value="#CCCCCC"/>
+                                    <Setter Property="StrokeThickness" Value="1.5"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding}" Value="True">
+                                            <Setter Property="Fill" Value="#AAAAAA"/>
+                                            <Setter Property="Stroke" Value="#AAAAAA"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Ellipse.Style>
+                        </Ellipse>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
             <!-- 북마크 목록 -->
-            <ScrollViewer Grid.Row="2"
-                          MaxHeight="468"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled"
-                          Focusable="False"
-                          PreviewKeyDown="BookmarkItemsControl_PreviewKeyDown">
             <ItemsControl x:Name="BookmarkItemsControl"
-                          ItemsSource="{Binding Bookmarks}"
-                          Margin="0,0,4,0">
+                          Grid.Row="3"
+                          ItemsSource="{Binding PagedBookmarks}"
+                          Margin="0,0,18,0"
+                          Focusable="False"
+                          FocusVisualStyle="{x:Null}"
+                          PreviewKeyDown="BookmarkItemsControl_PreviewKeyDown">
+                <ItemsControl.Style>
+                    <Style TargetType="ItemsControl">
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasMultiplePages}" Value="True">
+                                <Setter Property="MinHeight" Value="468"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.Style>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Style.Triggers>
+                            <!-- 단일 페이지: Collapsed로 창 높이 정상 조절 -->
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Content, RelativeSource={RelativeSource Self}}" Value="{x:Null}"/>
+                                    <Condition Binding="{Binding DataContext.HasMultiplePages, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                            </MultiDataTrigger>
+                            <!-- 다중 페이지: Hidden으로 레이아웃 크기 고정 (InvalidateMeasure 없음) -->
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding Content, RelativeSource={RelativeSource Self}}" Value="{x:Null}"/>
+                                    <Condition Binding="{Binding DataContext.HasMultiplePages, RelativeSource={RelativeSource AncestorType=ItemsControl}}" Value="True"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Hidden"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
@@ -154,10 +258,9 @@
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
-            </ScrollViewer>
 
             <!-- 푸터 -->
-            <Grid Grid.Row="4" Margin="0,0,18,0">
+            <Grid Grid.Row="5" Margin="0,0,18,0">
                 <!-- 아이템 카운터 -->
                 <StackPanel VerticalAlignment="Center">
                     <TextBlock Text="{Binding Bookmarks.Count}"
