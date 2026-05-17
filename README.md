@@ -65,7 +65,7 @@ Windows에서 글로벌 단축키(기본: Ctrl+\`)로 즐겨찾기 웹사이트�
 
 |     북마크 위젯      |     수정/설정 창     |     추가 창     |
 | :------------------: | :------------------: | :-------------: |
-| _(북마크 목록 표시)_ | _(북마크 수정/삭제)_ | _(북마크 추가)_ |
+| <img width="310" height="500" alt="image" src="https://github.com/user-attachments/assets/dedb860c-53dc-4adc-919b-f446ed1e4c8d" /> | <img width="350" height="500" alt="image" src="https://github.com/user-attachments/assets/10848bfb-d288-4afe-b63a-e57705a10152" /> | <img width="380" height="500" alt="image" src="https://github.com/user-attachments/assets/0ea284a4-1640-4dc5-9782-c91b9aff7934" /> |
 
 ## 시스템 요구사항
 
