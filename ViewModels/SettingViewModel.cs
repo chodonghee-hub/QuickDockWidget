@@ -169,11 +169,6 @@ namespace QuickDock.ViewModels
 
         public void DeleteBookmark(Bookmark bookmark)
         {
-            var confirm = MessageBox.Show(
-                $"'{bookmark.Title}' 을(를) 삭제하시겠습니까?",
-                "QuickDock", MessageBoxButton.YesNo, MessageBoxImage.Question);
-            if (confirm != MessageBoxResult.Yes) return;
-
             _bookmarks.Remove(bookmark);
             _jsonService.Save(new System.Collections.Generic.List<Bookmark>(_bookmarks));
             if (_editingBookmark == bookmark) ClearForm();

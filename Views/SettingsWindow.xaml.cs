@@ -50,7 +50,11 @@ namespace QuickDock.Views
         private void DeleteButton_Click(object sender, RoutedEventArgs e)
         {
             if (sender is Button btn && btn.Tag is Bookmark bookmark)
-                _vm.DeleteBookmark(bookmark);
+            {
+                var dialog = new ConfirmDeleteWindow(bookmark.Title) { Owner = this };
+                if (dialog.ShowDialog() == true)
+                    _vm.DeleteBookmark(bookmark);
+            }
         }
 
         private void SaveButton_Click(object sender, RoutedEventArgs e)
