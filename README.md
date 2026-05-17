@@ -8,17 +8,45 @@ Windows에서 글로벌 단축키(Ctrl+\`)로 즐겨찾기 웹사이트를 빠�
 [![GitHub Release](https://img.shields.io/github/v/release/chodonghee-hub/QuickDockWidget)](https://github.com/chodonghee-hub/QuickDockWidget/releases/latest)
 [![GitHub Downloads](https://img.shields.io/github/downloads/chodonghee-hub/QuickDockWidget/total)](https://github.com/chodonghee-hub/QuickDockWidget/releases)
 
-## 다운로드
+## 다운로드 및 설치
 
 > **별도 설치 없이 바로 실행 가능합니다** (.NET 런타임 포함 빌드)
 
 **[최신 버전 다운로드 →](https://github.com/chodonghee-hub/QuickDockWidget/releases/latest)**
 
+### 1단계 — 다운로드 및 실행
+
 1. `QuickDock-vX.X.X-win-x64.zip` 파일 다운로드
-2. 원하는 폴더에 압축 해제
+2. **영구적으로 사용할 폴더**에 압축 해제 (나중에 폴더를 옮기거나 삭제하면 시작프로그램 등록이 깨질 수 있음)
+   - 권장 경로: `C:\Users\사용자이름\AppData\Local\QuickDock\` 또는 `C:\Program Files\QuickDock\`
 3. `QuickDock.exe` 더블클릭으로 실행
 
 > Windows SmartScreen 경고가 뜨면 **"추가 정보" → "실행"** 클릭
+
+### 2단계 — Windows 시작 시 자동 실행 설정
+
+앱을 실행하면 시스템 트레이(우측 하단 알림 영역)에 QuickDock 아이콘이 생깁니다.
+
+**트레이 아이콘으로 설정하는 방법:**
+
+1. 화면 우측 하단 트레이 아이콘 우클릭
+2. **"시작 시 자동 실행"** 항목 클릭 (체크 표시되면 활성화됨)
+3. 이제 Windows 로그인 시 QuickDock이 자동으로 백그라운드에서 실행됩니다.
+
+> 내부적으로 `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Run` 레지스트리에 등록됩니다. 관리자 권한 없이도 설정 가능합니다.
+
+**수동으로 설정하는 방법 (선택 사항):**
+
+레지스트리 편집기 없이 PowerShell로도 설정할 수 있습니다:
+
+```powershell
+# 시작프로그램 등록
+$exePath = "C:\Users\사용자이름\QuickDock\QuickDock.exe"
+Set-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "QuickDock" -Value "`"$exePath`""
+
+# 시작프로그램 해제
+Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "QuickDock" -ErrorAction SilentlyContinue
+```
 
 ---
 
