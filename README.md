@@ -12,7 +12,7 @@ Windows에서 글로벌 단축키(Ctrl+\`)로 즐겨찾기 웹사이트를 빠�
 
 > **별도 설치 없이 바로 실행 가능합니다** (.NET 런타임 포함 빌드)
 
-**[최신 버전 다운로드 →](https://github.com/chodonghee-hub/QuickDock/releases/latest)**
+**[최신 버전 다운로드 →](https://github.com/chodonghee-hub/QuickDockWidget/releases/latest)**
 
 1. `QuickDock-vX.X.X-win-x64.zip` 파일 다운로드
 2. 원하는 폴더에 압축 해제
@@ -65,7 +65,7 @@ Windows에서 글로벌 단축키(Ctrl+\`)로 즐겨찾기 웹사이트를 빠�
 
 ```bash
 # 저장소 클론
-git clone https://github.com/chodonghee-hub/QuickDock.git
+git clone https://github.com/chodonghee-hub/QuickDockWidget.git
 cd QuickDock
 
 # 빌드
