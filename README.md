@@ -109,10 +109,10 @@ dotnet run
 
 ```powershell
 # 단일 exe 생성 (self-contained, ~85MB)
-.\publish.ps1 -Version "1.0.0"
+.\publish.ps1 -Version "1.0.1"
 
 # .NET 런타임이 설치된 환경용 경량 빌드 (~5~10MB)
-.\publish.ps1 -Version "1.0.0" -SelfContained $false
+.\publish.ps1 -Version "1.0.1" -SelfContained $false
 ```
 
 빌드 결과물은 `dist/QuickDock-vX.X.X-win-x64.zip`으로 생성됩니다.
