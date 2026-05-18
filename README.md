@@ -226,7 +226,7 @@ RegisterHotKey(hWnd, HOTKEY_ID, MOD_CTRL | MOD_NOREPEAT, 0xC0 /* ` */)
 
 별도의 팝업 창 없이 `SettingsWindow` 하단 고정 영역에서 이름·URL·아이콘 색상을 직접 편집합니다. 북마크 목록에서 항목을 클릭하면 해당 데이터가 폼에 로드되며, 저장 시 `ObservableCollection`의 해당 객체를 직접 수정합니다. 중복 URL 추가 시 덮어쓸지 여부를 사용자에게 확인합니다.
 
-## ✔️ 보안
+## 🛡️ 보안
 
 - 허용 URL 스킴: `http://`, `https://` 만 허용
 - `javascript:`, `file:`, `data:` 등 위험 스킴 차단
