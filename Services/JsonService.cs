@@ -13,11 +13,42 @@ namespace QuickDock.Services
 
         private static readonly string MainFile = Path.Combine(AppFolder, "bookmarks.json");
         private static readonly string BackupFile = Path.Combine(AppFolder, "bookmarks.backup.json");
+        private static readonly string SettingsFile = Path.Combine(AppFolder, "settings.json");
 
         private static readonly JsonSerializerOptions JsonOptions = new()
         {
             WriteIndented = true
         };
+
+        private class AppSettings
+        {
+            public double? WindowLeft { get; set; }
+            public double? WindowTop  { get; set; }
+        }
+
+        public void SaveWindowPosition(double left, double top)
+        {
+            try
+            {
+                Directory.CreateDirectory(AppFolder);
+                var settings = new AppSettings { WindowLeft = left, WindowTop = top };
+                File.WriteAllText(SettingsFile, JsonSerializer.Serialize(settings, JsonOptions));
+            }
+            catch { }
+        }
+
+        public (double Left, double Top)? LoadWindowPosition()
+        {
+            try
+            {
+                if (!File.Exists(SettingsFile)) return null;
+                var settings = JsonSerializer.Deserialize<AppSettings>(File.ReadAllText(SettingsFile));
+                if (settings?.WindowLeft is double l && settings.WindowTop is double t)
+                    return (l, t);
+            }
+            catch { }
+            return null;
+        }
 
         // 저장 데이터 래퍼 (스키마 버전 포함)
         private class BookmarkData

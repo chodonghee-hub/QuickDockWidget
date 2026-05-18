@@ -16,6 +16,7 @@ namespace QuickDock.Views
     {
         private readonly MainViewModel _viewModel = new();
         private bool _isAnimating;
+        private bool _isUserPositioned;
         private readonly TranslateTransform _bookmarkTranslate = new();
 
         public MainWindow()
@@ -29,7 +30,11 @@ namespace QuickDock.Views
         private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (e.ButtonState == MouseButtonState.Pressed)
+            {
                 DragMove();
+                _isUserPositioned = true;
+                _viewModel.JsonService.SaveWindowPosition(this.Left, this.Top);
+            }
         }
 
         private void GitHubButton_Click(object sender, RoutedEventArgs e)
@@ -41,8 +46,25 @@ namespace QuickDock.Views
         {
             base.OnContentRendered(e);
             SizeToContent = SizeToContent.Manual;
+            LoadSavedPosition();
             PositionWindow();
             _viewModel.Bookmarks.CollectionChanged += (_, _) => ResizeWindow();
+        }
+
+        private void LoadSavedPosition()
+        {
+            var pos = _viewModel.JsonService.LoadWindowPosition();
+            if (pos is null) return;
+            _isUserPositioned = true;
+            ClampToScreen(pos.Value.Left, pos.Value.Top);
+        }
+
+        private void ClampToScreen(double? preferLeft = null, double? preferTop = null)
+        {
+            const double margin = 8;
+            var area = SystemParameters.WorkArea;
+            Left = Math.Max(area.Left + margin, Math.Min(preferLeft ?? Left, area.Right  - Width        - margin));
+            Top  = Math.Max(area.Top  + margin, Math.Min(preferTop  ?? Top,  area.Bottom - ActualHeight - margin));
         }
 
         private void ResizeWindow()
@@ -53,6 +75,7 @@ namespace QuickDock.Views
                 UpdateLayout();
                 SizeToContent = SizeToContent.Manual;
                 PositionWindow();
+                if (_isUserPositioned) ClampToScreen();
             }, DispatcherPriority.Loaded);
         }
 
@@ -74,6 +97,7 @@ namespace QuickDock.Views
                     this.Show();
                     this.UpdateLayout();
                     PositionWindow();
+                    ClampToScreen();
                     this.Activate();
                     FocusFirstButton();
                     return;
@@ -87,6 +111,7 @@ namespace QuickDock.Views
                 this.Show();
                 this.UpdateLayout();
                 PositionWindow();
+                ClampToScreen();
                 this.Activate();
                 FocusFirstButton();
             }
@@ -110,6 +135,7 @@ namespace QuickDock.Views
                 Show();
                 UpdateLayout();
                 PositionWindow();
+                ClampToScreen();
                 Activate();
                 FocusFirstButton();
             };
@@ -151,9 +177,10 @@ namespace QuickDock.Views
 
         private void PositionWindow()
         {
+            if (_isUserPositioned) return;
             var screen = SystemParameters.WorkArea;
-            this.Left = screen.Right - this.Width - 16;
-            this.Top = screen.Bottom - this.ActualHeight - 16;
+            this.Left = screen.Right - this.Width - 8;
+            this.Top = screen.Bottom - this.ActualHeight - 8;
         }
 
         protected override void OnDeactivated(EventArgs e)
