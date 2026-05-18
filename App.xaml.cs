@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Threading;
 using System.Windows;
 using Microsoft.Win32;
 using QuickDock.Services;
@@ -8,11 +9,24 @@ namespace QuickDock
 {
     public partial class App : Application
     {
+        private static Mutex? _mutex;
         private TrayService? _trayService;
         private MainWindow? _mainWindow;
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            _mutex = new Mutex(true, "QuickDock_SingleInstance", out bool createdNew);
+            if (!createdNew)
+            {
+                MessageBox.Show(
+                    "QuickDock is already running.",
+                    "QuickDock",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                Shutdown();
+                return;
+            }
+
             base.OnStartup(e);
 
             if (e.Args.Contains("--install"))
@@ -59,6 +73,8 @@ namespace QuickDock
         protected override void OnExit(ExitEventArgs e)
         {
             _trayService?.Dispose();
+            _mutex?.ReleaseMutex();
+            _mutex?.Dispose();
             base.OnExit(e);
         }
 

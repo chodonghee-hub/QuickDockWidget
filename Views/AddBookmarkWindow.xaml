@@ -127,17 +127,12 @@
                            StrokeDashArray="4,2" Fill="White"/>
                 <Grid Margin="14,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="https://"
-                               FontFamily="Consolas" FontSize="13"
-                               Foreground="#BBBBBB" VerticalAlignment="Center"/>
-                    <TextBox Grid.Column="1"
-                             Text="{Binding InputUrl, UpdateSourceTrigger=PropertyChanged}"
-                             Margin="2,0,0,0"/>
-                    <TextBlock Grid.Column="2"
+                    <TextBox Grid.Column="0"
+                             Text="{Binding InputUrl, UpdateSourceTrigger=PropertyChanged}"/>
+                    <TextBlock Grid.Column="1"
                                Text="{Binding UrlValidationText}"
                                FontSize="11" Foreground="#22C55E"
                                VerticalAlignment="Center" Margin="8,0,0,0"

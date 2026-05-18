@@ -26,6 +26,12 @@ namespace QuickDock.Views
             BookmarkItemsControl.RenderTransform = _bookmarkTranslate;
         }
 
+        private void Header_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (e.ButtonState == MouseButtonState.Pressed)
+                DragMove();
+        }
+
         private void GitHubButton_Click(object sender, RoutedEventArgs e)
         {
             Process.Start(new ProcessStartInfo("https://github.com/chodonghee-hub/QuickDockWidget") { UseShellExecute = true });
