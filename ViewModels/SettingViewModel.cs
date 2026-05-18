@@ -251,6 +251,15 @@ namespace QuickDock.ViewModels
         }
 
         // ── private 헬퍼 ──────────────────────────────────
+        public void AbortCapture()
+        {
+            if (!_isCapturingHotkey) return;
+            _hotkeyService.ChangeHotkey(
+                _hotkeyService.CurrentModifiers & ~0x4000u,
+                _hotkeyService.CurrentVk);
+            ExitCaptureMode();
+        }
+
         private void ExitCaptureMode()
         {
             IsCapturingHotkey = false;

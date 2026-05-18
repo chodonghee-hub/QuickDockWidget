@@ -127,6 +127,12 @@ namespace QuickDock.Views
             e.Handled = true;
         }
 
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            _vm.AbortCapture();
+            base.OnClosing(e);
+        }
+
         private void BookmarkListBox_PreviewMouseWheel(object sender, MouseWheelEventArgs e)
         {
             if (e.Handled) return;
